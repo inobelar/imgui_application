@@ -8,6 +8,9 @@ The **main goal** of this library - to make it easy to bootstrap & create GUI
 web applications with C++ stack, without touching web stack (like html, 
 javascript, etc), and the same native apps (without drastical changes in code).
 
+For making web apps used `emscripten` - for generating `WebAssembly` from c++ 
+code, and translate `OpenGL` (actually - `OpenGL ES` subset) into `WebGL`.
+
 This library suitable for making standalone single-page web-hosted interactive
 examples, playgrounds, GUI's for C++ libraries, etc.
 
