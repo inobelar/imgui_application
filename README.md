@@ -1,15 +1,17 @@
 # ImGui Application
 
-This tiny library is wrapper around `Dear ImGui` and its backends (currently
-used `SDL 2` with `OpenGL 3`), designed to hide boilerplate with window
+This tiny library is wrapper around 
+[`Dear ImGui`](https://github.com/ocornut/imgui) and its backends (currently 
+used `SDL 2` with `OpenGL 3`), designed to hide boilerplate with window 
 management and provide a simple way for making ui-focused applications.
 
 The **main goal** of this library - to make it easy to bootstrap & create GUI 
 web applications with C++ stack, without touching web stack (like html, 
 javascript, etc), and the same native apps (without drastical changes in code).
 
-For making web apps used `emscripten` - for generating `WebAssembly` from c++ 
-code, and translate `OpenGL` (actually - `OpenGL ES` subset) into `WebGL`.
+For making web apps used [`emscripten`](https://emscripten.org/) - for 
+generating `WebAssembly` from c++ code, and translate `OpenGL` (actually - 
+`OpenGL ES` subset) into `WebGL`.
 
 This library suitable for making standalone single-page web-hosted interactive
 examples, playgrounds, GUI's for C++ libraries, etc.
@@ -114,22 +116,30 @@ examples, playgrounds, GUI's for C++ libraries, etc.
 
 - Build web-based app:
 
-    ```shell
-    # Setup EMSDK environment
-    $ source ~/path/to/emsdk/emsdk_env.sh
+    1. [Install `emscripten`](https://emscripten.org/docs/getting_started/downloads.html) 
 
-    # Make build directory and go into it
-    $ mkdir ./build/; cd ./build/
+    2. Make app:
 
-    # Generate Makefile for building web-based app
-    $ emcmake cmake -DCMAKE_BUILD_TYPE=Release ../
+        ```shell
+        # Setup EMSDK (Emscripten SDK) environment (to use emcc, em++, emar, emcmake, emrun)
+        $ source ~/path/to/emsdk/emsdk_env.sh
 
-    # Build
-    $ make VERBOSE=1 -j4
+        # (Optional) make sure that EMSDK environment active
+        $ emcc --version
 
-    # Launch web-server for hosting necessary html/js/wasm and open page in browser
-    $ emrun ./demo_imgui_app.html
-    ```
+
+        # Make build directory and go into it
+        $ mkdir ./build/; cd ./build/
+
+        # Generate Makefile for building web-based app
+        $ emcmake cmake -DCMAKE_BUILD_TYPE=Release ../
+
+        # Build
+        $ make VERBOSE=1 -j4
+
+        # Launch web-server for hosting necessary html/js/wasm and open page in browser
+        $ emrun ./demo_imgui_app.html
+        ```
 
 - Build native app:
 
