@@ -155,8 +155,9 @@ else()
         ${SDL2_INCLUDE_DIRS}
     )
 
+    # -ldl needed, since in 'imgui_impl_opengl3_loader.h' used `dlopen()` and `dlclose()`
     target_link_libraries(${PROJECT_NAME}
-        ${SDL2_LIBRARIES}
+        ${SDL2_LIBRARIES} GL dl
     )
 
 endif()
