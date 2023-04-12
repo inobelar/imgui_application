@@ -18,6 +18,9 @@ set(LIB_INCLUDE_DIRECTORIES
     ${IMGUI_DIR}/
     ${IMGUI_DIR}/backends/
 
+    # ImGui::cpp includes
+    ${IMGUI_DIR}/misc/cpp/
+
     # ImGui_Application includes
     ${CMAKE_CURRENT_SOURCE_DIR}/include/
 )
@@ -48,6 +51,9 @@ set(IMGUI_APPLICATION_INCLUDE_DIRECTORIES
 
     # ImGui includes
     ${IMGUI_DIR}/
+
+    # ImGui::cpp includes
+    ${IMGUI_DIR}/misc/cpp/
 
     # ImGui_Application includes
     ${CMAKE_CURRENT_SOURCE_DIR}/include/
