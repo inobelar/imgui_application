@@ -165,3 +165,8 @@ next 2 files:
 `./build/` directory
 2. `$ bash ./build_emscripten_test_app.sh` - make test application (library must
 be already built).
+
+## Alternatives
+
+- https://github.com/ggerganov/ggweb
+
