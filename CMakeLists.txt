@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.22.1)
 
 project(imgui_application)
 
-SET(CMAKE_CXX_STANDARD 11)
-SET(CMAKE_CXX_STANDARD_REQUIRED on)
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED on)
 set(CMAKE_CXX_EXTENSIONS off)
 
 message(STATUS "[Lib ImGui App] Build type: ${CMAKE_BUILD_TYPE}")
