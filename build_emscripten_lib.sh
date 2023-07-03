@@ -10,7 +10,7 @@ cd ./build/
 # ------------------------------------------------------------------------------
 # ImGui + backend + App
 
-IMGUI_PATH="../third_party/imgui-1.89.4"
+IMGUI_PATH="../third_party/imgui-1.89.6"
 
 CPP_FLAGS=
 CPP_FLAGS+=" -std=c++11"

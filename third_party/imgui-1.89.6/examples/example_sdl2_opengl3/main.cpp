@@ -1,67 +1,32 @@
-#include <imgui_app/ImGui_Application.hpp>
-
-/*
-
-    IMPORTANT NOTE: The next code is based on `imgui/examples/example_sdl2_opengl3/main.cpp`
-
-*/
+// Dear ImGui: standalone example application for SDL2 + OpenGL
+// (SDL is a cross-platform general purpose library for handling windows, inputs, OpenGL/Vulkan/Metal graphics context creation, etc.)
+// If you are new to Dear ImGui, read documentation from the docs/ folder + read the top of imgui.cpp.
+// Read online: https://github.com/ocornut/imgui/tree/master/docs
 
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_opengl3.h"
-
-#include <cstdio> // for printf()
-#include <SDL2/SDL.h>
-
+#include <stdio.h>
+#include <SDL.h>
 #if defined(IMGUI_IMPL_OPENGL_ES2)
-    #include <SDL_opengles2.h>
+#include <SDL_opengles2.h>
 #else
-    #include <SDL_opengl.h>
+#include <SDL_opengl.h>
 #endif
 
-#if defined(__EMSCRIPTEN__)
-    #include <emscripten.h> // for emscripten_set_main_loop_arg(), emscripten_cancel_main_loop()
+// This example can also compile and run with Emscripten! See 'Makefile.emscripten' for details.
+#ifdef __EMSCRIPTEN__
+#include "../libs/emscripten/emscripten_mainloop_stub.h"
 #endif
 
-class ImGui_Application::Impl
-{
-public:
-
-    SDL_Window* window       { nullptr };
-    SDL_GLContext gl_context { nullptr };
-
-    bool done { false };
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-
-    Impl() = default;
-};
-
-ImGui_Application::ImGui_Application()
-    : _impl( new Impl() )
-{
-
-}
-
-ImGui_Application::~ImGui_Application()
-{
-    // Cleanup - ImGui
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplSDL2_Shutdown();
-    ImGui::DestroyContext();
-
-    // Cleanup - SDL2
-    SDL_GL_DeleteContext(_impl->gl_context);
-    SDL_DestroyWindow(_impl->window);
-    SDL_Quit();
-}
-
-bool ImGui_Application::init()
+// Main code
+int main(int, char**)
 {
     // Setup SDL
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0)
     {
-        printf("SDL_Init error: %s\n", SDL_GetError());
-        return false;
+        printf("Error: %s\n", SDL_GetError());
+        return -1;
     }
 
     // Decide GL+GLSL versions
@@ -98,24 +63,24 @@ bool ImGui_Application::init()
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
     SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
-    _impl->window = SDL_CreateWindow("Dear ImGui SDL2+OpenGL3 example", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, window_flags);
-    _impl->gl_context = SDL_GL_CreateContext(_impl->window);
-    SDL_GL_MakeCurrent(_impl->window, _impl->gl_context);
+    SDL_Window* window = SDL_CreateWindow("Dear ImGui SDL2+OpenGL3 example", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, window_flags);
+    SDL_GLContext gl_context = SDL_GL_CreateContext(window);
+    SDL_GL_MakeCurrent(window, gl_context);
     SDL_GL_SetSwapInterval(1); // Enable vsync
 
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
     //ImGui::StyleColorsLight();
 
     // Setup Platform/Renderer backends
-    ImGui_ImplSDL2_InitForOpenGL(_impl->window, _impl->gl_context);
+    ImGui_ImplSDL2_InitForOpenGL(window, gl_context);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
     // Load Fonts
@@ -135,21 +100,22 @@ bool ImGui_Application::init()
     //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());
     //IM_ASSERT(font != nullptr);
 
-    #if defined(__EMSCRIPTEN__)
+    // Our state
+    bool show_demo_window = true;
+    bool show_another_window = false;
+    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+    // Main loop
+    bool done = false;
+#ifdef __EMSCRIPTEN__
     // For an Emscripten build we are disabling file-system access, so let's not attempt to do a fopen() of the imgui.ini file.
     // You may manually call LoadIniSettingsFromMemory() to load settings from your own storage.
     io.IniFilename = nullptr;
-    #endif
-
-    return true;
-}
-
-void ImGui_Application::run_main_loop()
-{
-    static const auto tick_func = [](void* user_data) -> bool
+    EMSCRIPTEN_MAINLOOP_BEGIN
+#else
+    while (!done)
+#endif
     {
-        ImGui_Application* self = static_cast<ImGui_Application*>(user_data);
-
         // Poll and handle events (inputs, window resize, etc.)
         // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
         // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application, or clear/overwrite your copy of the mouse data.
@@ -160,15 +126,9 @@ void ImGui_Application::run_main_loop()
         {
             ImGui_ImplSDL2_ProcessEvent(&event);
             if (event.type == SDL_QUIT)
-            {
-                self->_impl->done = true;
-                return false;
-            }
-            if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(self->_impl->window))
-            {
-                self->_impl->done = true;
-                return false;
-            }
+                done = true;
+            if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(window))
+                done = true;
         }
 
         // Start the Dear ImGui frame
@@ -176,71 +136,63 @@ void ImGui_Application::run_main_loop()
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
 
-        self->draw_ui();
+        // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
+        if (show_demo_window)
+            ImGui::ShowDemoWindow(&show_demo_window);
+
+        // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
+        {
+            static float f = 0.0f;
+            static int counter = 0;
+
+            ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+
+            ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+            ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+            ImGui::Checkbox("Another Window", &show_another_window);
+
+            ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+            ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+
+            if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+                counter++;
+            ImGui::SameLine();
+            ImGui::Text("counter = %d", counter);
+
+            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+            ImGui::End();
+        }
+
+        // 3. Show another simple window.
+        if (show_another_window)
+        {
+            ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+            ImGui::Text("Hello from another window!");
+            if (ImGui::Button("Close Me"))
+                show_another_window = false;
+            ImGui::End();
+        }
 
         // Rendering
         ImGui::Render();
-        ImGuiIO& io = ImGui::GetIO();
         glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
-        glClearColor(self->_impl->clear_color.x, self->_impl->clear_color.y, self->_impl->clear_color.z, self->_impl->clear_color.w);
+        glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
         glClear(GL_COLOR_BUFFER_BIT);
-
-        self->draw_gl();
-
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-        SDL_GL_SwapWindow(self->_impl->window);
+        SDL_GL_SwapWindow(window);
+    }
+#ifdef __EMSCRIPTEN__
+    EMSCRIPTEN_MAINLOOP_END;
+#endif
 
-        return true;
-    };
+    // Cleanup
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplSDL2_Shutdown();
+    ImGui::DestroyContext();
 
-    #if !defined(__EMSCRIPTEN__) // Native
+    SDL_GL_DeleteContext(gl_context);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
 
-        while(!_impl->done)
-        {
-            if( !tick_func(this) )
-            {
-                break;
-            }
-        }
-
-    #else // defined(__EMSCRIPTEN__)
-
-        emscripten_set_main_loop_arg(
-            [](void* user_data)
-            {
-                if( !tick_func(user_data) )
-                {
-                    emscripten_cancel_main_loop();
-                }
-            },
-            /* user_data: */ this,
-            /* fps: 0=auto */ 0,
-            /* simulate_infinite_loop: */ true
-        );
-
-    #endif
-}
-
-void ImGui_Application::set_clear_color(float r, float g, float b, float a)
-{
-    _impl->clear_color = ImVec4(r, g, b, a);
-}
-
-void ImGui_Application::set_window_title(const char* title)
-{
-    SDL_SetWindowTitle(_impl->window, title);
-}
-const char* ImGui_Application::get_window_title() const
-{
-    return SDL_GetWindowTitle(_impl->window);
-}
-
-void ImGui_Application::draw_ui()
-{
-    // NOOP
-}
-
-void ImGui_Application::draw_gl()
-{
-    // NOOP
+    return 0;
 }
