@@ -10,7 +10,7 @@ message(STATUS "[Lib ImGui App] Build type: ${CMAKE_BUILD_TYPE}")
 
 # ----------------------------------------------------------
 
-set(IMGUI_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third_party/imgui-1.89.6/")
+set(IMGUI_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third_party/imgui-1.89.7/")
 
 set(LIB_INCLUDE_DIRECTORIES
 

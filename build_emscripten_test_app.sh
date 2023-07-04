@@ -36,7 +36,7 @@ int main()
 }
 EOF
 
-IMGUI_PATH="../third_party/imgui-1.89.6/"
+IMGUI_PATH="../third_party/imgui-1.89.7/"
 
 CPP_FLAGS=
 CPP_FLAGS+=" -std=c++11"
