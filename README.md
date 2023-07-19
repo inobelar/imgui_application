@@ -147,7 +147,7 @@ examples, playgrounds, GUI's for C++ libraries, etc.
     # Make build directory and go into it
     $ mkdir ./build/; cd ./build/
 
-    # Generate Makefile for building web-based app
+    # Generate Makefile for building native app
     $ cmake -DCMAKE_BUILD_TYPE=Release ../
 
     # Build
@@ -169,4 +169,3 @@ be already built).
 ## Alternatives
 
 - https://github.com/ggerganov/ggweb
-
